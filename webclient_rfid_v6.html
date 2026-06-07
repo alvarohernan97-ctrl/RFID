@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RFID Student Box · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&family=SF+Pro+Text:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f5f7; --surface: #ffffff; --surface2: #fbfbfd;
+    --border: rgba(0,0,0,0.08); --border-hover: rgba(0,0,0,0.14);
+    --text-primary: #1d1d1f; --text-secondary: #6e6e73; --text-tertiary: #aeaeb2;
+    --accent: #0071e3; --accent-hover: #0077ed; --accent-light: #e8f0fd;
+    --danger: #ff3b30; --danger-light: #fff1f0;
+    --success: #34c759; --success-light: #f0fdf4;
+    --warning: #ff9500; --warning-light: #fff8ec;
+    --sidebar-w: 220px; --radius: 12px; --radius-sm: 8px; --radius-xs: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text-primary); min-height: 100vh; display: flex; }
+  #sidebar {
+    width: var(--sidebar-w); background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border); height: 100vh;
+    position: fixed; top: 0; left: 0;
+    display: flex; flex-direction: column; z-index: 100; padding: 0 0 16px;
+  }
+  .sidebar-logo { padding: 24px 20px 16px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+  .sidebar-logo .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+  .sidebar-logo .logo-icon svg { width: 20px; height: 20px; fill: white; }
+  .sidebar-logo h1 { font-size: 13px; font-weight: 600; letter-spacing: -0.2px; }
+  .sidebar-logo p { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .nav-section { padding: 6px 12px 2px; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: 0.6px; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--radius-xs); cursor: pointer; font-size: 13px; font-weight: 400; color: var(--text-secondary); transition: background 0.15s, color 0.15s; user-select: none; margin-bottom: 1px; }
+  .nav-item:hover { background: rgba(0,0,0,0.04); color: var(--text-primary); }
+  .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+  .nav-item.active svg { opacity: 1; }
+  .sidebar-footer { margin-top: auto; padding: 12px 20px 0; border-top: 1px solid var(--border); }
+  .server-status { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); padding: 8px 10px; background: var(--bg); border-radius: var(--radius-xs); }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-tertiary); flex-shrink: 0; transition: background 0.3s; }
+  .status-dot.online { background: var(--success); box-shadow: 0 0 0 2px rgba(52,199,89,0.2); }
+  .status-dot.offline { background: var(--danger); }
+  .server-url { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; word-break: break-all; }
+  #main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+  .topbar { background: rgba(255,255,255,0.82); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 28px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .topbar-title { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+  .topbar-actions { display: flex; align-items: center; gap: 10px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-xs); font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; text-decoration: none; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-0.5px); }
+  .btn-secondary { background: var(--bg); color: var(--text-primary); border: 1px solid var(--border-hover); }
+  .btn-secondary:hover { background: #ebebed; }
+  .btn-danger { background: var(--danger-light); color: var(--danger); }
+  .btn-danger:hover { background: #ffe5e3; }
+  .btn svg { width: 14px; height: 14px; }
+  .content { padding: 28px; flex: 1; }
+  .page { display: none; }
+  .page.active { display: block; animation: fade-in 0.18s ease; }
+  @keyframes fade-in { from { opacity:0; } to { opacity:1; } }
+  .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 20px 24px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 16px 18px; box-shadow: var(--shadow); }
+  .stat-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+  .stat-value { font-size: 26px; font-weight: 300; letter-spacing: -1px; }
+  .stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+  .stat-accent { color: var(--accent); } .stat-danger { color: var(--danger); } .stat-success { color: var(--success); }
+  .table-wrap { overflow-x: auto; }
+  .table-pagination { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-top:1px solid var(--border); background:var(--surface); }
+  .table-pagination .pag-info { font-size:11px; color:var(--text-tertiary); }
+  .table-pagination .pag-btns { display:flex; gap:6px; }
+  .table-pagination button { padding:4px 10px; font-size:12px; border-radius:var(--radius-xs); border:1px solid var(--border-hover); background:var(--bg); color:var(--text-secondary); cursor:pointer; transition:background 0.15s; }
+  .table-pagination button:hover:not(:disabled) { background:#ebebed; color:var(--text-primary); }
+  .table-pagination button:disabled { opacity:0.35; cursor:default; }
+  thead th.sortable { cursor:pointer; user-select:none; }
+  thead th.sortable:hover { color:var(--text-primary); }
+  thead th .sort-icon { display:inline-block; margin-left:4px; opacity:0.4; font-style:normal; }
+  thead th.sort-asc .sort-icon, thead th.sort-desc .sort-icon { opacity:1; color:var(--accent); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; color: var(--text-tertiary); text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+  tbody td { padding: 12px 16px; vertical-align: middle; }
+  .uid-code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; background: var(--bg); padding: 3px 7px; border-radius: 5px; color: var(--text-secondary); }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-success { background: var(--success-light); color: #1a7a30; }
+  .badge-danger  { background: var(--danger-light);  color: #c0302a; }
+  .badge-warning { background: var(--warning-light); color: #9a5a00; }
+  .badge-neutral { background: var(--bg); color: var(--text-secondary); }
+  .badge-accent  { background: var(--accent-light); color: #004db0; }
+  .badge::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor; opacity:0.7; }
+  .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-tertiary); pointer-events: none; }
+  .search-input { width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--border-hover); border-radius: var(--radius-xs); font-size: 13px; background: var(--surface); color: var(--text-primary); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,0.12); }
+  .search-input::placeholder { color: var(--text-tertiary); }
+  select.filter-select { padding: 8px 12px; border: 1px solid var(--border-hover); border-radius: var(--radius-xs); font-size: 13px; background: var(--surface); color: var(--text-primary); cursor: pointer; outline: none; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+  .section-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow-md); width: 100%; max-width: 480px; padding: 28px; animation: modal-in 0.22s cubic-bezier(0.34, 1.36, 0.64, 1); }
+  @keyframes modal-in { from { opacity:0; transform: scale(0.94) translateY(6px); } to { opacity:1; transform: scale(1) translateY(0); } }
+  .modal h3 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .modal .modal-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+  .form-input { width: 100%; padding: 9px 12px; border: 1px solid var(--border-hover); border-radius: var(--radius-xs); font-size: 13px; background: var(--surface); color: var(--text-primary); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,0.12); }
+  select.form-input { cursor: pointer; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+  .toast { background: var(--text-primary); color: white; padding: 12px 18px; border-radius: var(--radius-sm); font-size: 13px; box-shadow: var(--shadow-md); animation: toast-in 0.2s ease; display: flex; align-items: center; gap: 8px; max-width: 300px; }
+  .toast.success { background: #1a7a30; } .toast.error { background: #c0302a; } .toast.warning { background: #9a5a00; }
+  @keyframes toast-in { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+  .setup-card { max-width: 460px; margin: 60px auto; background: var(--surface); border-radius: 20px; box-shadow: var(--shadow-md); padding: 36px 40px; text-align: center; }
+  .setup-card .setup-icon { width: 56px; height: 56px; background: var(--accent-light); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .setup-card h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .setup-card p { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; }
+  .activity-list { display: flex; flex-direction: column; }
+  .activity-pagination { display: flex; align-items: center; justify-content: space-between; padding: 10px 0 0; border-top: 1px solid var(--border); margin-top: 4px; }
+  .activity-pagination .pag-info { font-size: 11px; color: var(--text-tertiary); }
+  .activity-pagination .pag-btns { display: flex; gap: 6px; }
+  .activity-pagination button { padding: 4px 10px; font-size: 12px; border-radius: var(--radius-xs); border: 1px solid var(--border-hover); background: var(--surface); color: var(--text-secondary); cursor: pointer; transition: background 0.15s; }
+  .activity-pagination button:hover:not(:disabled) { background: var(--bg); color: var(--text-primary); }
+  .activity-pagination button:disabled { opacity: 0.35; cursor: default; }
+  .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .activity-icon svg { width: 14px; height: 14px; }
+  .activity-icon.reg { background: var(--accent-light); color: var(--accent); }
+  .activity-icon.ban { background: var(--danger-light); color: var(--danger); }
+  .activity-icon.valid { background: var(--success-light); color: var(--success); }
+  .activity-text { flex: 1; }
+  .activity-text strong { font-size: 13px; font-weight: 500; }
+  .activity-text span { display: block; font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .activity-time { font-size: 11px; color: var(--text-tertiary); white-space: nowrap; padding-top: 2px; }
+  .readers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .reader-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px; box-shadow: var(--shadow); }
+  .reader-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .reader-id { font-family: 'SF Mono', monospace; font-size: 13px; font-weight: 600; }
+  .reader-meta { font-size: 12px; color: var(--text-tertiary); display: flex; flex-direction: column; gap: 4px; }
+  .reader-meta span { display: flex; align-items: center; gap: 5px; }
+  .detail-row { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-key { font-size: 11px; color: var(--text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+  .detail-val { font-size: 13px; color: var(--text-primary); }
+  .empty-state { text-align: center; padding: 48px 24px; }
+  .empty-state svg { width: 40px; height: 40px; color: var(--text-tertiary); margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; color: var(--text-secondary); }
+  .empty-state small { font-size: 12px; color: var(--text-tertiary); }
+  @media (max-width: 768px) { #sidebar { transform: translateX(-100%); } #main { margin-left: 0; } .content { padding: 16px; } .form-row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
+    <h1>RFID Student Box</h1>
+    <p>Panel de administración</p>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">General</div>
+    <div class="nav-item active" onclick="showPage('dashboard')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</div>
+    <div class="nav-item" onclick="showPage('users')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Usuarios</div>
+    <div class="nav-item" onclick="showPage('blacklist')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>Blacklist</div>
+    <div class="nav-item" onclick="showPage('logfile')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>Logfile</div>
+  </div>
+  <div class="nav-section" style="margin-top:8px;">
+    <div class="nav-label">Sistema</div>
+    <div class="nav-item" onclick="showPage('readers')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>Lectores</div>
+    <div class="nav-item" onclick="showPage('settings')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>Configuración</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="server-status">
+      <div class="status-dot" id="status-dot"></div>
+      <div><div id="status-text">Sin conexión</div><div class="server-url" id="status-url">—</div></div>
+    </div>
+  </div>
+</nav>
+
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn btn-secondary" onclick="refreshAll()">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        Actualizar
+      </button>
+    </div>
+  </div>
+  <div class="content">
+
+    <div id="page-setup" class="page active">
+      <div class="setup-card">
+        <div class="setup-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0071e3" stroke-width="1.5" width="28" height="28"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z" fill="#0071e3"/></svg></div>
+        <h2>Conectar al servidor</h2>
+        <p>Introduce la URL del servidor Flask para comenzar a administrar el sistema RFID Student Box.</p>
+        <div class="form-group" style="text-align:left"><label class="form-label">URL del servidor</label><input type="text" class="form-input" id="setup-url" placeholder="http://192.168.1.137:5000" value="http://192.168.1.137:5000"></div>
+        <div class="form-group" style="text-align:left"><label class="form-label">Clave maestra KM (hex, 32 chars)</label><input type="text" class="form-input" id="setup-km" placeholder="0123456789ABCDEF0123456789ABCDEF" value="0123456789ABCDEF0123456789ABCDEF"></div>
+        <div class="form-group" style="text-align:left"><label class="form-label">Reader ID</label><input type="text" class="form-input" id="setup-rid" placeholder="WEBCLIENT01" value="WEBCLIENT01"></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;" onclick="conectarServidor()">Conectar</button>
+      </div>
+    </div>
+
+    <div id="page-dashboard" class="page">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Usuarios registrados</div><div class="stat-value stat-accent" id="stat-users">—</div><div class="stat-sub">en Users DB</div></div>
+        <div class="stat-card"><div class="stat-label">Tarjetas bloqueadas</div><div class="stat-value stat-danger" id="stat-blocked">—</div><div class="stat-sub">en Blacklist</div></div>
+        <div class="stat-card"><div class="stat-label">Eventos en log</div><div class="stat-value" id="stat-events">—</div><div class="stat-sub">registros totales</div></div>
+        <div class="stat-card"><div class="stat-label">Sesión AES</div><div class="stat-value stat-success" id="stat-session">Activa</div><div class="stat-sub">KS derivada</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <div class="section-header"><div><div class="section-title">Actividad reciente</div><div class="section-sub">Últimas operaciones</div></div></div>
+          <div class="activity-list" id="activity-list"><div class="empty-state"><p>Sin actividad registrada</p></div></div>
+          <div class="activity-pagination" id="activity-pagination" style="display:none">
+            <span class="pag-info" id="pag-info"></span>
+            <div class="pag-btns">
+              <button onclick="activityPage(-1)" id="pag-prev">← Anterior</button>
+              <button onclick="activityPage(1)"  id="pag-next">Siguiente →</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-header"><div><div class="section-title">Estado del sistema</div></div></div>
+          <div class="detail-row"><div class="detail-key">Servidor URL</div><div class="detail-val" id="info-url">—</div></div>
+          <div class="detail-row"><div class="detail-key">Reader ID</div><div class="detail-val" id="info-rid">—</div></div>
+          <div class="detail-row"><div class="detail-key">KM (primeros 8)</div><div class="detail-val" id="info-km">—</div></div>
+          <div class="detail-row"><div class="detail-key">Sesión establecida</div><div class="detail-val" id="info-session">—</div></div>
+          <div class="detail-row"><div class="detail-key">Blacklist actualizada</div><div class="detail-val" id="info-bldate">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-users" class="page">
+      <div class="toolbar">
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input type="text" class="search-input" placeholder="Buscar por UID, nombre, email…" id="search-users" oninput="filtrarUsuarios()"></div>
+        <select class="filter-select" id="filter-status" onchange="filtrarUsuarios()"><option value="">Todos los estados</option><option value="valid">Válido</option><option value="blocked">Bloqueado</option><option value="expired">Expirado</option></select>
+        <button class="btn btn-primary" onclick="openModal('modal-register')"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Nuevo usuario</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;"><div class="table-wrap"><table id="users-table"><thead><tr><th class="sortable" onclick="sortTable('users','uid')" data-col="uid">UID<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('users','name')" data-col="name">Nombre<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('users','email')" data-col="email">Email<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('users','ticket')" data-col="ticket">Tipo billete<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('users','status')" data-col="status">Estado<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('users','expiry')" data-col="expiry">Expira<i class="sort-icon">⇅</i></th><th>Acciones</th></tr></thead><tbody id="users-tbody"><tr><td colspan="7"><div class="empty-state"><p>Cargando usuarios…</p></div></td></tr></tbody></table></div><div class="table-pagination" id="users-pag" style="display:none"><span class="pag-info" id="users-pag-info"></span><div class="pag-btns"><button onclick="tablePage('users',-1)" id="users-pag-prev">← Anterior</button><button onclick="tablePage('users',1)" id="users-pag-next">Siguiente →</button></div></div></div>
+    </div>
+
+    <div id="page-blacklist" class="page">
+      <div class="toolbar">
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input type="text" class="search-input" placeholder="Buscar por UID, motivo…" id="search-bl" oninput="filtrarBlacklist()"></div>
+        <select class="filter-select" id="filter-reason" onchange="filtrarBlacklist()"><option value="">Todos los motivos</option><option value="LOSTORSTOLEN">Perdida/Robada</option><option value="MALFUNCTION">Mal funcionamiento</option><option value="CLONINGSUSPECTED">Sospecha clonación</option></select>
+        <button class="btn btn-danger" onclick="openModal('modal-block')"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>Bloquear tarjeta</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;"><div class="table-wrap"><table id="bl-table"><thead><tr><th class="sortable" onclick="sortTable('bl','uid')" data-col="uid">UID<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('bl','cardtype')" data-col="cardtype">Tipo tarjeta<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('bl','reasoncode')" data-col="reasoncode">Motivo<i class="sort-icon">⇅</i></th><th>Descripción</th><th class="sortable" onclick="sortTable('bl','blockingdateunix32')" data-col="blockingdateunix32">Fecha bloqueo<i class="sort-icon">⇅</i></th><th>Notas</th><th></th></tr></thead><tbody id="bl-tbody"><tr><td colspan="7"><div class="empty-state"><p>Cargando blacklist…</p></div></td></tr></tbody></table></div><div class="table-pagination" id="bl-pag" style="display:none"><span class="pag-info" id="bl-pag-info"></span><div class="pag-btns"><button onclick="tablePage('bl',-1)" id="bl-pag-prev">← Anterior</button><button onclick="tablePage('bl',1)" id="bl-pag-next">Siguiente →</button></div></div></div>
+    </div>
+
+    <div id="page-logfile" class="page">
+      <div class="toolbar">
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><input type="text" class="search-input" placeholder="Buscar por UID, resultado…" id="search-log" oninput="filtrarLog()"></div>
+        <select class="filter-select" id="filter-result" onchange="filtrarLog()"><option value="">Todos los resultados</option><option value="valid">Válido</option><option value="banned">Baneado</option><option value="expired">Expirado</option><option value="void">Anulado</option></select>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;"><div class="table-wrap"><table id="log-table"><thead><tr><th class="sortable" onclick="sortTable('log','timestampunix32')" data-col="timestampunix32">Timestamp<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('log','uid')" data-col="uid">UID<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('log','eventtype')" data-col="eventtype">Tipo evento<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('log','result')" data-col="result">Resultado<i class="sort-icon">⇅</i></th><th class="sortable" onclick="sortTable('log','tickettype')" data-col="tickettype">Tipo billete<i class="sort-icon">⇅</i></th><th>Descripción</th></tr></thead><tbody id="log-tbody"><tr><td colspan="6"><div class="empty-state"><p>Cargando logfile…</p></div></td></tr></tbody></table></div><div class="table-pagination" id="log-pag" style="display:none"><span class="pag-info" id="log-pag-info"></span><div class="pag-btns"><button onclick="tablePage('log',-1)" id="log-pag-prev">← Anterior</button><button onclick="tablePage('log',1)" id="log-pag-next">Siguiente →</button></div></div></div>
+    </div>
+
+    <div id="page-readers" class="page">
+      <div class="readers-grid">
+        <div class="reader-card">
+          <div class="reader-card-header"><div class="reader-id" id="rd-id">—</div><span class="badge badge-success" id="rd-badge">Conectado</span></div>
+          <div class="reader-meta">
+            <span><svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg><span id="rd-url">—</span></span>
+            <span>Sesión activa: <span id="rd-session">—</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-settings" class="page">
+      <div style="max-width:560px;">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="section-header"><div><div class="section-title">Conexión al servidor</div></div></div>
+          <div class="form-group"><label class="form-label">URL del servidor Flask</label><input type="text" class="form-input" id="cfg-url"></div>
+          <div class="form-group"><label class="form-label">Reader ID</label><input type="text" class="form-input" id="cfg-rid"></div>
+          <div class="form-group"><label class="form-label">Clave maestra KM (hex, 32 chars)</label><input type="text" class="form-input" id="cfg-km"></div>
+          <div style="display:flex;gap:10px;margin-top:6px;"><button class="btn btn-primary" onclick="guardarConfig()">Guardar</button><button class="btn btn-secondary" onclick="reconectar()">Reconectar</button></div>
+        </div>
+        <div class="card">
+          <div class="section-header"><div><div class="section-title">Sesión AES-CMAC</div></div></div>
+          <div class="detail-row"><div class="detail-key">Estado sesión</div><div class="detail-val" id="cfg-session-status">—</div></div>
+          <div class="detail-row"><div class="detail-key">KS (primeros 16)</div><div class="detail-val" id="cfg-ks">—</div></div>
+          <div class="detail-row"><div class="detail-key">Expira en</div><div class="detail-val" id="cfg-expires">—</div></div>
+          <button class="btn btn-secondary" style="margin-top:14px;" onclick="reconectar()">Nueva autenticación</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modales -->
+<div class="modal-overlay" id="modal-register">
+  <div class="modal">
+    <h3>Registrar nuevo usuario</h3>
+    <p class="modal-sub">El servidor recibirá la petición firmada con KS.</p>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">UID de la tarjeta</label><input type="text" class="form-input" id="reg-uid" placeholder="04A1BC23"></div>
+      <div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input" id="reg-name" placeholder="Laura Gómez"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input type="text" class="form-input" id="reg-email" placeholder="laura@example.com"></div>
+      <div class="form-group"><label class="form-label">Tipo de usuario</label><select class="form-input" id="reg-usertype"><option value="user">Usuario</option><option value="employee">Empleado</option><option value="visitor">Visitante</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Tipo de billete</label><select class="form-input" id="reg-ticket"><option value="monthly pass">Abono mensual</option><option value="single ride">Viaje único</option><option value="10 rides">10 viajes</option><option value="day pass">Abono día</option><option value="tourist pass">Turista</option><option value="week pass">Abono semana</option><option value="staff pass">Personal</option></select></div>
+      <div class="form-group"><label class="form-label">Tipo de chip</label><select class="form-input" id="reg-chip"><option value="MIFARE DESFire EV1">DESFire EV1</option><option value="MIFARE DESFire EV3">DESFire EV3</option><option value="MIFARE Classic 1K">Classic 1K</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-register')">Cancelar</button><button class="btn btn-primary" onclick="registrarUsuario()">Registrar usuario</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-block">
+  <div class="modal">
+    <h3>Bloquear tarjeta</h3>
+    <p class="modal-sub">La tarjeta se añadirá a la Blacklist del servidor.</p>
+    <div class="form-group"><label class="form-label">UID de la tarjeta</label><input type="text" class="form-input" id="bl-uid" placeholder="04A1BC23"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Motivo</label><select class="form-input" id="bl-reason"><option value="LOSTORSTOLEN">Pérdida / Robo</option><option value="MALFUNCTION">Mal funcionamiento</option><option value="CLONINGSUSPECTED">Sospecha de clonación</option></select></div>
+      <div class="form-group"><label class="form-label">Tipo de billete</label><select class="form-input" id="bl-ticket"><option value="monthly pass">monthly pass</option><option value="single ride">single ride</option><option value="10 rides">10 rides</option><option value="day pass">day pass</option><option value="tourist pass">tourist pass</option><option value="week pass">week pass</option><option value="staff pass">staff pass</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notas</label><input type="text" class="form-input" id="bl-notes" placeholder="CS-0432 — Reportado por el cliente"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-block')">Cancelar</button><button class="btn btn-danger" onclick="bloquearTarjeta()">Bloquear tarjeta</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-unblock">
+  <div class="modal" style="max-width:420px;">
+    <h3>Desbloquear tarjeta</h3>
+    <p class="modal-sub">Se eliminará el UID <strong id="unblock-uid-label">—</strong> de la Blacklist. La tarjeta podrá volver a validarse.</p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-unblock')">Cancelar</button>
+      <button class="btn btn-primary" onclick="desbloquearTarjeta()">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        Confirmar desbloqueo
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-user-detail">
+  <div class="modal" style="max-width:540px;">
+    <h3 id="detail-uid-title">Detalle de usuario</h3>
+    <p class="modal-sub" id="detail-sub">—</p>
+    <div id="detail-content"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-user-detail')">Cerrar</button><button class="btn btn-danger" id="detail-block-btn">Bloquear tarjeta</button></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+const estado = {
+  serverUrl:'', readerId:'', KM:null, KS:null,
+  sessionActive:false, sessionTs:null,
+  allUsers:[], allBlacklist:[], allLogs:[], activity:[]
+};
+
+// AES-CMAC sobre Web Crypto API (RFC 4493)
+// Web Crypto no tiene CMAC nativo, así que se simula con AES-CBC según el estándar
+async function aesCmac(keyBytes, message) {
+  const k = await crypto.subtle.importKey('raw', keyBytes, {name:'AES-CBC'}, false, ['encrypt']);
+  const zero = new Uint8Array(16);
+  const L = new Uint8Array((await crypto.subtle.encrypt({name:'AES-CBC', iv:zero}, k, zero)).slice(0,16));
+  function dbl(b) {
+    const o = new Uint8Array(16); let c = 0;
+    for (let i=15;i>=0;i--){const v=(b[i]<<1)|c;c=b[i]>>7;o[i]=v&0xff;}
+    if(c)o[15]^=0x87; return o;
+  }
+  const K1=dbl(L), K2=dbl(K1);
+  const n=Math.ceil(message.length/16)||1;
+  const full=message.length>0&&message.length%16===0;
+  let last=new Uint8Array(16);
+  if(full){last.set(message.slice((n-1)*16));for(let i=0;i<16;i++)last[i]^=K1[i];}
+  else{const p=message.slice((n-1)*16);last.set(p);last[p.length]=0x80;for(let i=0;i<16;i++)last[i]^=K2[i];}
+  let X=new Uint8Array(16);
+  for(let i=0;i<n-1;i++){
+    const b=message.slice(i*16,(i+1)*16),inp=new Uint8Array(16);
+    for(let j=0;j<16;j++)inp[j]=X[j]^b[j];
+    X=new Uint8Array((await crypto.subtle.encrypt({name:'AES-CBC',iv:zero},k,inp)).slice(0,16));
+  }
+  const fi=new Uint8Array(16);
+  for(let j=0;j<16;j++)fi[j]=X[j]^last[j];
+  return new Uint8Array((await crypto.subtle.encrypt({name:'AES-CBC',iv:zero},k,fi)).slice(0,16));
+}
+
+function hexToBytes(h){return new Uint8Array(h.match(/.{1,2}/g).map(b=>parseInt(b,16)));}
+function bytesToHex(b){return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('');}
+function rand16(){return crypto.getRandomValues(new Uint8Array(16));}
+function unixNow(){return Math.floor(Date.now()/1000);}
+function fmtDate(u){if(!u)return'—';return new Date(u*1000).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function fmtDateShort(u){if(!u)return'—';return new Date(u*1000).toLocaleDateString('es-ES');}
+
+// Serialización estable equivalente a json.dumps(sort_keys=True, separators=(',',':')) de Python
+// Es imprescindible que el JSON firmado aquí sea idéntico al que verifica el servidor
+function stableStringify(obj) {
+  if (obj === null || obj === undefined) return 'null';
+  if (typeof obj === 'boolean') return obj ? 'true' : 'false';
+  if (typeof obj === 'number') return String(obj);
+  if (typeof obj === 'string') return JSON.stringify(obj);
+  if (Array.isArray(obj)) return '[' + obj.map(stableStringify).join(',') + ']';
+  const keys = Object.keys(obj).sort();
+  return '{' + keys.map(k => JSON.stringify(k) + ':' + stableStringify(obj[k])).join(',') + '}';
+}
+
+// Autenticación mutua AES-CMAC
+async function doAuth() {
+  try {
+    const Nr = rand16();
+    const r1 = await fetch(`${estado.serverUrl}/auth/challenge`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({reader_id:estado.readerId, Nr:bytesToHex(Nr)})
+    });
+    if (!r1.ok) throw new Error('Challenge fallido');
+    const d1 = await r1.json();
+    const Ns = hexToBytes(d1.Ns);
+    const macServidor = hexToBytes(d1.mac_server);
+    const esperado = await aesCmac(estado.KM, new Uint8Array([...Nr,...Ns]));
+    for(let i=0;i<16;i++){if(esperado[i]!==macServidor[i])throw new Error('MAC del servidor inválido');}
+    const macCliente = await aesCmac(estado.KM, new Uint8Array([...Ns,...Nr]));
+    const r2 = await fetch(`${estado.serverUrl}/auth/verify`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({reader_id:estado.readerId, Nr:bytesToHex(Nr), Ns:bytesToHex(Ns), mac_client:bytesToHex(macCliente)})
+    });
+    if (!r2.ok) throw new Error('Verify fallido');
+    estado.KS = await aesCmac(estado.KM, new Uint8Array([...Nr,...Ns]));
+    estado.sessionActive = true;
+    estado.sessionTs = Date.now();
+    return true;
+  } catch(e) {
+    console.error('Error en autenticación:', e);
+    estado.sessionActive = false;
+    return false;
+  }
+}
+
+// signedPost / signedGet — firman el payload con KS usando stableStringify
+// El orden de claves debe coincidir exactamente con el del decorador @require_session del servidor
+async function signedPost(path, payload) {
+  if (!estado.sessionActive) throw new Error('Sin sesión activa');
+  payload.ts = unixNow();
+  const ordenado = {};
+  Object.keys(payload).sort().forEach(k => { ordenado[k] = payload[k]; });
+  const bodyStr = stableStringify(ordenado);
+  const mac = await aesCmac(estado.KS, new TextEncoder().encode(bodyStr));
+
+  // TODO: borrar estos console.log cuando el protocolo esté estable
+  console.log('signedPost →', path, '| body:', bodyStr, '| mac:', bytesToHex(mac));
+
+  ordenado.mac = bytesToHex(mac);
+  return fetch(`${estado.serverUrl}${path}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(ordenado)
+  });
+}
+
+async function signedGet(path, params) {
+  if (!estado.sessionActive) throw new Error('Sin sesión activa');
+  params.ts = unixNow();
+  const ordenado = {};
+  Object.keys(params).sort().forEach(k => { ordenado[k] = params[k]; });
+  const bodyStr = stableStringify(ordenado);
+  const mac = await aesCmac(estado.KS, new TextEncoder().encode(bodyStr));
+  params.mac = bytesToHex(mac);
+  const qs = new URLSearchParams(
+    Object.fromEntries(Object.entries(params).map(([k,v])=>[k,String(v)]))
+  ).toString();
+  return fetch(`${estado.serverUrl}${path}?${qs}`);
+}
+
+// Navegación
+const titulosPagina = {setup:'Configuración inicial',dashboard:'Dashboard',users:'Usuarios',blacklist:'Blacklist',logfile:'Logfile',readers:'Lectores',settings:'Configuración'};
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes(`'${id}'`))n.classList.add('active');});
+  document.getElementById('topbar-title').textContent = titulosPagina[id]||id;
+  if(id==='users')     cargarUsuarios();
+  if(id==='blacklist') cargarBlacklist();
+  if(id==='logfile')   cargarLog();
+  if(id==='readers')   cargarLectores();
+  if(id==='settings')  cargarSettings();
+}
+
+// Conexión y autenticación
+async function conectarServidor() {
+  const url = document.getElementById('setup-url').value.trim().replace(/\/$/,'');
+  const km  = document.getElementById('setup-km').value.trim().toUpperCase();
+  const rid = document.getElementById('setup-rid').value.trim();
+  if(!url||km.length!==32||!rid){toast('Rellena todos los campos correctamente','error');return;}
+  estado.serverUrl=url; estado.KM=hexToBytes(km); estado.readerId=rid;
+  localStorage.setItem('rfid_url',url); localStorage.setItem('rfid_km',km); localStorage.setItem('rfid_rid',rid);
+  toast('Autenticando con el servidor…');
+  const ok = await doAuth();
+  if(ok){toast('Conexión y autenticación AES correctas','success');actualizarDot(true,url);showPage('dashboard');cargarDashboard();}
+  else{toast('Error de conexión o autenticación','error');actualizarDot(false);}
+}
+
+function actualizarDot(online, url) {
+  document.getElementById('status-dot').className='status-dot '+(online?'online':'offline');
+  document.getElementById('status-text').textContent=online?'Conectado':'Sin conexión';
+  if(url)document.getElementById('status-url').textContent=url;
+}
+
+async function reconectar() {
+  toast('Reautenticando…');
+  const ok = await doAuth();
+  if(ok){toast('Sesión AES renovada','success');actualizarDot(true,estado.serverUrl);cargarSettings();}
+  else{toast('Error de autenticación','error');actualizarDot(false);}
+}
+
+async function refreshAll() {
+  const p = document.querySelector('.page.active'); if(!p)return;
+  const id = p.id.replace('page-','');
+  if(id==='dashboard') cargarDashboard();
+  else if(id==='users')     cargarUsuarios();
+  else if(id==='blacklist') cargarBlacklist();
+  else if(id==='logfile')   cargarLog();
+}
+
+// Recarga selectiva de datos tras acciones (evita recargar toda la página)
+async function refrescarRelacionados(...secciones) {
+  const activa = document.querySelector('.page.active')?.id?.replace('page-','');
+  const aRefrescar = new Set(secciones);
+  if(aRefrescar.has('users')) {
+    try { const r=await signedGet('/data/users',{reader_id:estado.readerId}); const d=await r.json(); estado.allUsers=d?.data?.filerecords||[]; } catch(e){}
+    document.getElementById('stat-users').textContent = estado.allUsers.length;
+  }
+  if(aRefrescar.has('blacklist')) {
+    try { const r=await signedGet('/data/blacklist',{reader_id:estado.readerId}); const d=await r.json(); estado.allBlacklist=d?.data?.blacklistrecords||[]; } catch(e){}
+    document.getElementById('stat-blocked').textContent = estado.allBlacklist.length;
+  }
+  if(aRefrescar.has('logfile')) {
+    try { const r=await signedGet('/data/logfile',{reader_id:estado.readerId}); const d=await r.json(); estado.allLogs=d?.data?.logfilerecords||[]; } catch(e){}
+    document.getElementById('stat-events').textContent = estado.allLogs.length;
+  }
+  renderActividad();
+  if(aRefrescar.has(activa)) {
+    if(activa==='users')     renderUsuarios(estado.allUsers);
+    if(activa==='blacklist') renderBlacklist(estado.allBlacklist);
+    if(activa==='logfile')   renderLog(estado.allLogs);
+  }
+}
+
+// Dashboard
+async function cargarDashboard() {
+  try {
+    const [uR,bR,lR] = await Promise.all([
+      signedGet('/data/users',    {reader_id:estado.readerId}).catch(()=>null),
+      signedGet('/data/blacklist',{reader_id:estado.readerId}).catch(()=>null),
+      signedGet('/data/logfile',  {reader_id:estado.readerId}).catch(()=>null)
+    ]);
+    if(uR?.ok){const d=await uR.json();estado.allUsers=d?.data?.filerecords||[];document.getElementById('stat-users').textContent=estado.allUsers.length;}
+    if(bR?.ok){const d=await bR.json();estado.allBlacklist=d?.data?.blacklistrecords||[];document.getElementById('stat-blocked').textContent=estado.allBlacklist.length;document.getElementById('info-bldate').textContent=fmtDate(d?.data?.blacklistdate);}
+    if(lR?.ok){const d=await lR.json();estado.allLogs=d?.data?.logfilerecords||[];document.getElementById('stat-events').textContent=estado.allLogs.length;}
+  } catch(e){console.error('Error cargando dashboard:', e);}
+  renderActividad();
+  document.getElementById('stat-session').textContent=estado.sessionActive?'Activa':'Inactiva';
+  document.getElementById('stat-session').className='stat-value '+(estado.sessionActive?'stat-success':'stat-danger');
+  document.getElementById('info-url').textContent=estado.serverUrl;
+  document.getElementById('info-rid').textContent=estado.readerId;
+  document.getElementById('info-km').textContent=estado.KM?bytesToHex(estado.KM).substring(0,8)+'…':'—';
+  document.getElementById('info-session').textContent=estado.sessionTs?new Date(estado.sessionTs).toLocaleTimeString('es-ES'):'—';
+}
+
+function tipoActividad(result){
+  if(result==='valid') return 'valid';
+  if(result==='banned') return 'ban';
+  return 'reg';
+}
+function tituloActividad(result, eventtype){
+  if(result==='valid')   return 'Validación correcta';
+  if(result==='banned')  return 'Tarjeta baneada';
+  if(result==='expired') return 'Billete expirado';
+  if(result==='void')    return 'Billete anulado';
+  return eventtype||'Evento';
+}
+
+let _pagActividad = 0;
+const TAM_PAG_ACTIVIDAD = 10;
+
+function construirActividad() {
+  const deLogs = [...estado.allLogs]
+    .sort((a,b)=>(b.timestampunix32||0)-(a.timestampunix32||0))
+    .map(l=>({
+      type:  tipoActividad(l.result),
+      title: tituloActividad(l.result, l.eventtype),
+      uid:   l.uid||'—',
+      time:  l.timestampunix32 ? new Date(l.timestampunix32*1000).toLocaleTimeString('es-ES') : '—',
+      _ts:   l.timestampunix32||0
+    }));
+  return [...estado.activity, ...deLogs];
+}
+
+function renderActividad() {
+  const c   = document.getElementById('activity-list');
+  const pag = document.getElementById('activity-pagination');
+  const combinado = construirActividad();
+  if(!combinado.length){
+    c.innerHTML='<div class="empty-state"><p>Sin actividad registrada</p><small>Los eventos del logfile aparecerán aquí</small></div>';
+    pag.style.display='none';
+    return;
+  }
+  const total  = combinado.length;
+  const paginas = Math.ceil(total / TAM_PAG_ACTIVIDAD);
+  if(_pagActividad >= paginas) _pagActividad = paginas - 1;
+  if(_pagActividad < 0)        _pagActividad = 0;
+  const inicio = _pagActividad * TAM_PAG_ACTIVIDAD;
+  const trozo  = combinado.slice(inicio, inicio + TAM_PAG_ACTIVIDAD);
+  const iconos = {
+    reg:   '<path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>',
+    ban:   '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>',
+    valid: '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>'
+  };
+  c.innerHTML = trozo.map(a=>`<div class="activity-item">
+    <div class="activity-icon ${a.type}"><svg viewBox="0 0 24 24" fill="currentColor">${iconos[a.type]||''}</svg></div>
+    <div class="activity-text"><strong>${a.title}</strong><span>${a.uid||''}</span></div>
+    <div class="activity-time">${a.time}</div>
+  </div>`).join('');
+  pag.style.display = total > TAM_PAG_ACTIVIDAD ? 'flex' : 'none';
+  document.getElementById('pag-info').textContent = `${inicio+1}–${Math.min(inicio+TAM_PAG_ACTIVIDAD, total)} de ${total}`;
+  document.getElementById('pag-prev').disabled = _pagActividad === 0;
+  document.getElementById('pag-next').disabled = _pagActividad >= paginas - 1;
+}
+
+function activityPage(dir){
+  _pagActividad += dir;
+  renderActividad();
+}
+
+function agregarActividad(tipo, titulo, uid) {
+  estado.activity.unshift({type:tipo, title:titulo, uid, time:new Date().toLocaleTimeString('es-ES')});
+  if(estado.activity.length>20) estado.activity.pop();
+  _pagActividad = 0;
+  if(document.getElementById('page-dashboard').classList.contains('active')) renderActividad();
+}
+
+// Usuarios
+async function cargarUsuarios() {
+  try{const r=await signedGet('/data/users',{reader_id:estado.readerId});const d=await r.json();estado.allUsers=d?.data?.filerecords||[];}catch(e){estado.allUsers=[];}
+  renderUsuarios(estado.allUsers);
+  document.getElementById('stat-users').textContent=estado.allUsers.length;
+}
+
+function renderUsuarios(usuarios) {
+  const t=document.getElementById('users-tbody');
+  if(!usuarios.length){
+    t.innerHTML=`<tr><td colspan="7"><div class="empty-state"><p>No hay usuarios registrados</p><small>Usa "Nuevo usuario" para registrar el primero</small></div></td></tr>`;
+    document.getElementById('users-pag').style.display='none'; return;
+  }
+  const ordenados = aplicarOrden('users', usuarios, u => ({
+    uid: u.uid||'', name: (u.userdata||{}).username||'',
+    email: (u.userdata||{}).useremail||'', ticket: (u.ticketdata||{}).tickettype||'',
+    status: (u.ticketdata||{}).status||'', expiry: (u.ticketdata||{}).expirationdateunix32||0
+  }));
+  const {slice, total, start} = paginar('users', ordenados);
+  t.innerHTML=slice.map(u=>{
+    const td=u.ticketdata||{},ud=u.userdata||{},st=td.status||'unknown';
+    const bc=st==='valid'?'badge-success':st==='blocked'?'badge-danger':'badge-warning';
+    const sl=st==='valid'?'Válido':st==='blocked'?'Bloqueado':st==='expired'?'Expirado':st;
+    const bloqueado=estado.allBlacklist.some(b=>b.uid===u.uid);
+    return `<tr onclick="verDetalleUsuario('${u.uid}')" style="cursor:pointer">
+      <td><span class="uid-code">${u.uid||'—'}</span></td>
+      <td>${ud.username||'—'}</td>
+      <td style="color:var(--text-secondary);font-size:12px">${ud.useremail||'—'}</td>
+      <td><span class="badge badge-neutral">${td.tickettype||'—'}</span></td>
+      <td>${bloqueado?'<span class="badge badge-danger">Bloqueado</span>':`<span class="badge ${bc}">${sl}</span>`}</td>
+      <td style="color:var(--text-secondary);font-size:12px">${fmtDateShort(td.expirationdateunix32)}</td>
+      <td><button class="btn btn-secondary" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();bloquearDesdeUsuario('${u.uid}')">Bloquear</button></td>
+    </tr>`;
+  }).join('');
+  renderPaginacion('users', total, start);
+  actualizarIconosOrden('users-table');
+}
+
+// Motor de ordenación y paginación
+const TAM_PAG_TABLA = 10;
+const _estadoTablas = {
+  users: { page:0, sortCol:null, sortDir:1 },
+  bl:    { page:0, sortCol:null, sortDir:1 },
+  log:   { page:0, sortCol:'timestampunix32', sortDir:-1 }
+};
+
+function aplicarOrden(clave, filas, keyFn) {
+  const {sortCol, sortDir} = _estadoTablas[clave];
+  if(!sortCol) return filas;
+  return [...filas].sort((a,b)=>{
+    const ka=keyFn(a)[sortCol], kb=keyFn(b)[sortCol];
+    if(typeof ka==='number') return (ka-kb)*sortDir;
+    return String(ka).localeCompare(String(kb))*sortDir;
+  });
+}
+
+function paginar(clave, filas) {
+  const s = _estadoTablas[clave];
+  const total = filas.length;
+  const paginas = Math.ceil(total/TAM_PAG_TABLA)||1;
+  if(s.page >= paginas) s.page = paginas-1;
+  if(s.page < 0) s.page = 0;
+  const inicio = s.page * TAM_PAG_TABLA;
+  return { slice: filas.slice(inicio, inicio+TAM_PAG_TABLA), total, start: inicio };
+}
+
+function renderPaginacion(clave, total, inicio) {
+  const s = _estadoTablas[clave];
+  const pag = document.getElementById(clave+'-pag');
+  const paginas = Math.ceil(total/TAM_PAG_TABLA)||1;
+  pag.style.display = total > TAM_PAG_TABLA ? 'flex' : 'none';
+  document.getElementById(clave+'-pag-info').textContent = `${inicio+1}–${Math.min(inicio+TAM_PAG_TABLA,total)} de ${total}`;
+  document.getElementById(clave+'-pag-prev').disabled = s.page===0;
+  document.getElementById(clave+'-pag-next').disabled = s.page>=paginas-1;
+}
+
+function tablePage(clave, dir) {
+  _estadoTablas[clave].page += dir;
+  if(clave==='users') renderUsuarios(usuariosActuales());
+  if(clave==='bl')    renderBlacklist(blActual());
+  if(clave==='log')   renderLog(logActual());
+}
+
+function sortTable(clave, col) {
+  const s = _estadoTablas[clave];
+  if(s.sortCol===col) s.sortDir *= -1;
+  else { s.sortCol=col; s.sortDir=1; }
+  s.page = 0;
+  if(clave==='users') renderUsuarios(usuariosActuales());
+  if(clave==='bl')    renderBlacklist(blActual());
+  if(clave==='log')   renderLog(logActual());
+}
+
+function actualizarIconosOrden(idTabla) {
+  const clave = idTabla.replace('-table','');
+  const {sortCol, sortDir} = _estadoTablas[clave];
+  document.querySelectorAll(`#${idTabla} thead th`).forEach(th=>{
+    th.classList.remove('sort-asc','sort-desc');
+    const icono = th.querySelector('.sort-icon');
+    if(!icono) return;
+    if(th.dataset.col===sortCol){
+      th.classList.add(sortDir===1?'sort-asc':'sort-desc');
+      icono.textContent = sortDir===1 ? '↑' : '↓';
+    } else { icono.textContent='⇅'; }
+  });
+}
+
+function usuariosActuales() {
+  const q=document.getElementById('search-users').value.toLowerCase();
+  const st=document.getElementById('filter-status').value;
+  return estado.allUsers.filter(u=>{
+    const ud=u.userdata||{},td=u.ticketdata||{};
+    return(!q||(u.uid||'').toLowerCase().includes(q)||(ud.username||'').toLowerCase().includes(q)||(ud.useremail||'').toLowerCase().includes(q))&&(!st||td.status===st);
+  });
+}
+function blActual() {
+  const q=document.getElementById('search-bl').value.toLowerCase();
+  const r=document.getElementById('filter-reason').value;
+  return estado.allBlacklist.filter(b=>(!q||(b.uid||'').toLowerCase().includes(q)||(b.reasoncode||'').toLowerCase().includes(q)||(b.notes||'').toLowerCase().includes(q))&&(!r||b.reasoncode===r));
+}
+function logActual() {
+  const q=document.getElementById('search-log').value.toLowerCase();
+  const r=document.getElementById('filter-result').value;
+  return estado.allLogs.filter(l=>(!q||(l.uid||'').toLowerCase().includes(q)||(l.result||'').toLowerCase().includes(q)||(l.description||'').toLowerCase().includes(q))&&(!r||l.result===r));
+}
+
+function filtrarUsuarios(){ _estadoTablas.users.page=0; renderUsuarios(usuariosActuales()); }
+
+function verDetalleUsuario(uid) {
+  const u=estado.allUsers.find(x=>x.uid===uid); if(!u)return;
+  const td=u.ticketdata||{},ud=u.userdata||{},ct=u.cardtype||{};
+  document.getElementById('detail-uid-title').textContent='Usuario · '+uid;
+  document.getElementById('detail-sub').textContent=(ud.username||'')+' — '+(ud.useremail||'');
+  document.getElementById('detail-content').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+    <div class="detail-row"><div class="detail-key">UID</div><div class="detail-val"><span class="uid-code">${u.uid}</span></div></div>
+    <div class="detail-row"><div class="detail-key">Último lector</div><div class="detail-val">${u.lastreaderid||'—'}</div></div>
+    <div class="detail-row"><div class="detail-key">Nombre</div><div class="detail-val">${ud.username||'—'}</div></div>
+    <div class="detail-row"><div class="detail-key">Email</div><div class="detail-val">${ud.useremail||'—'}</div></div>
+    <div class="detail-row"><div class="detail-key">Tipo usuario</div><div class="detail-val">${ud.usertype||'—'}</div></div>
+    <div class="detail-row"><div class="detail-key">Chip</div><div class="detail-val">${ct.chiptype||'—'}</div></div>
+    <div class="detail-row"><div class="detail-key">Tipo billete</div><div class="detail-val">${td.tickettype||'—'}</div></div>
+    <div class="detail-row"><div class="detail-key">Estado</div><div class="detail-val">${td.status||'—'}</div></div>
+    <div class="detail-row"><div class="detail-key">Registro</div><div class="detail-val">${fmtDate(td.registrationdateunix32)}</div></div>
+    <div class="detail-row"><div class="detail-key">Expiración</div><div class="detail-val">${fmtDate(td.expirationdateunix32)}</div></div>
+    <div class="detail-row"><div class="detail-key">Último uso</div><div class="detail-val">${fmtDate(td.lastusedateunix32)}</div></div>
+    <div class="detail-row"><div class="detail-key">Usos</div><div class="detail-val">${td.realuses||0} / ${td.maximumuses===255?'∞':td.maximumuses}</div></div>
+  </div>`;
+  document.getElementById('detail-block-btn').onclick=()=>{closeModal('modal-user-detail');bloquearDesdeUsuario(uid);};
+  openModal('modal-user-detail');
+}
+
+async function registrarUsuario() {
+  const uid     = document.getElementById('reg-uid').value.trim().toUpperCase();
+  const nombre  = document.getElementById('reg-name').value.trim();
+  const email   = document.getElementById('reg-email').value.trim();
+  const tipousr = document.getElementById('reg-usertype').value;
+  const ticket  = document.getElementById('reg-ticket').value;
+  const chip    = document.getElementById('reg-chip').value;
+  if(!uid){toast('Introduce un UID','error');return;}
+  const now = unixNow();
+  const expiraciones={'monthly pass':now+2592000,'single ride':now+86400,'10 rides':now+2592000,'day pass':now+86400,'tourist pass':now+259200,'week pass':now+604800,'staff pass':now+31536000};
+  const maxUsos={'single ride':1,'10 rides':10,'tourist pass':10};
+  try{
+    const r=await signedPost('/users/register',{
+      reader_id:estado.readerId, uid,
+      card_data:{
+        cardtype:{manufacturer:'NXP',chiptype:chip,memorysizebytes:4096,serialnumber:`NXP-${uid}`},
+        ticketdata:{tickettype:ticket,registrationdateunix32:now,expirationdateunix32:expiraciones[ticket]||now+2592000,lastusedateunix32:now,maximumuses:maxUsos[ticket]||255,realuses:0,status:'valid',inout:'out'},
+        userdata:{userid:String(Math.floor(Math.random()*1e8)).padStart(8,'0'),username:nombre,useremail:email,usertype:tipousr}
+      }
+    });
+    const d=await r.json();
+    if(r.ok){
+      toast(`Usuario ${uid} registrado correctamente`,'success');
+      agregarActividad('reg','Nuevo usuario registrado',uid);
+      await subirEventoLog(uid,ticket,'tap','valid',`Usuario registrado desde webclient: ${nombre}`);
+      closeModal('modal-register');
+      await refrescarRelacionados('users','logfile');
+    } else toast(d.reason||'Error al registrar','error');
+  }catch(e){toast('Error de red: '+e.message,'error');}
+}
+
+// Blacklist
+async function cargarBlacklist() {
+  try{const r=await signedGet('/data/blacklist',{reader_id:estado.readerId});const d=await r.json();estado.allBlacklist=d?.data?.blacklistrecords||[];}catch(e){estado.allBlacklist=[];}
+  renderBlacklist(estado.allBlacklist);
+  document.getElementById('stat-blocked').textContent=estado.allBlacklist.length;
+}
+
+function renderBlacklist(registros) {
+  const t=document.getElementById('bl-tbody');
+  if(!registros.length){
+    t.innerHTML=`<tr><td colspan="7"><div class="empty-state"><p>Blacklist vacía</p></div></td></tr>`;
+    document.getElementById('bl-pag').style.display='none'; return;
+  }
+  const etiquetas={LOSTORSTOLEN:'Pérdida/Robo',MALFUNCTION:'Mal funcionamiento',CLONINGSUSPECTED:'Clonación sospechada'};
+  const estilos={LOSTORSTOLEN:'badge-warning',MALFUNCTION:'badge-neutral',CLONINGSUSPECTED:'badge-danger'};
+  const ordenados = aplicarOrden('bl', registros, b => ({
+    uid: b.uid||'', cardtype: b.cardtype||'',
+    reasoncode: b.reasoncode||'', blockingdateunix32: b.blockingdateunix32||0
+  }));
+  const {slice, total, start} = paginar('bl', ordenados);
+  t.innerHTML=slice.map(b=>`<tr>
+    <td><span class="uid-code">${b.uid||'—'}</span></td>
+    <td style="font-size:12px;color:var(--text-secondary)">${b.cardtype||'—'}</td>
+    <td><span class="badge ${estilos[b.reasoncode]||'badge-neutral'}">${etiquetas[b.reasoncode]||b.reasoncode||'—'}</span></td>
+    <td style="font-size:12px;color:var(--text-secondary)">${b.reasondescription||'—'}</td>
+    <td style="font-size:12px;color:var(--text-secondary)">${fmtDateShort(b.blockingdateunix32)}</td>
+    <td style="font-size:12px;color:var(--text-secondary)">${b.notes||'—'}</td>
+    <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:11px;color:var(--success);border-color:var(--success)" onclick="confirmarDesbloqueo('${b.uid||''}')"><svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>Desbloquear</button></td>
+  </tr>`).join('');
+  renderPaginacion('bl', total, start);
+  actualizarIconosOrden('bl-table');
+}
+
+function filtrarBlacklist(){ _estadoTablas.bl.page=0; renderBlacklist(blActual()); }
+
+async function bloquearTarjeta() {
+  const uid    = document.getElementById('bl-uid').value.trim().toUpperCase();
+  const motivo = document.getElementById('bl-reason').value;
+  const ticket = document.getElementById('bl-ticket').value||'monthly pass';
+  const notas  = document.getElementById('bl-notes').value||'Bloqueado desde panel web';
+  if(!uid){toast('Introduce un UID','error');return;}
+  const descripciones={
+    LOSTORSTOLEN:'Lost reported by customer',
+    MALFUNCTION:'Blocked due to malfunction or user error',
+    CLONINGSUSPECTED:'Duplicate UID detected at two locations'
+  };
+  try{
+    const r=await signedPost('/blacklist/add',{
+      reader_id:estado.readerId,
+      record:{uid,cardtype:'MIFARE DESFire EV1',tickettype:ticket,blockingdateunix32:unixNow(),expirationdateunix32:null,reasoncode:motivo,reasondescription:descripciones[motivo],notes:notas}
+    });
+    const d=await r.json();
+    if(r.ok){
+      toast(`Tarjeta ${uid} bloqueada`,'success');
+      agregarActividad('ban','Tarjeta bloqueada',uid);
+      await subirEventoLog(uid,ticket,'error','banned',`Tarjeta bloqueada desde webclient: ${motivo}`);
+      closeModal('modal-block');
+      await refrescarRelacionados('blacklist','users','logfile');
+    } else toast(d.reason||'Error al bloquear','error');
+  }catch(e){toast('Error de red: '+e.message,'error');}
+}
+
+function bloquearDesdeUsuario(uid){document.getElementById('bl-uid').value=uid;openModal('modal-block');}
+
+let _uidADesbloquear = '';
+function confirmarDesbloqueo(uid) {
+  _uidADesbloquear = uid;
+  document.getElementById('unblock-uid-label').textContent = uid;
+  openModal('modal-unblock');
+}
+
+async function desbloquearTarjeta() {
+  const uid = _uidADesbloquear;
+  if(!uid){toast('UID no válido','error');return;}
+  try{
+    const r=await signedPost('/blacklist/remove',{reader_id:estado.readerId,uid});
+    const d=await r.json();
+    if(r.ok){
+      toast(`Tarjeta ${uid} desbloqueada`,'success');
+      agregarActividad('valid','Tarjeta desbloqueada',uid);
+      await subirEventoLog(uid,'—','error','valid','Tarjeta desbloqueada desde webclient');
+      closeModal('modal-unblock');
+      await refrescarRelacionados('blacklist','users','logfile');
+    } else toast(d.reason||'Error al desbloquear','error');
+  }catch(e){toast('Error de red: '+e.message,'error');}
+}
+
+// Logfile
+async function subirEventoLog(uid, tickettype, eventtype, result, description, realuses=0) {
+  const evento = {
+    timestampunix32: unixNow(),
+    uid:             uid||'WEBCLIENT',
+    cardtype:        'WEBCLIENT',
+    tickettype:      tickettype||'—',
+    realuses,
+    eventtype,
+    result,
+    description
+  };
+  const payload = {
+    reader_id: estado.readerId,
+    logfile: {
+      logfileversion:  '1.0',
+      logfiledate:     unixNow(),
+      logfilereaderid: estado.readerId,
+      logfilerecords:  [evento]
+    }
+  };
+  try{ await signedPost('/logfile', payload); }
+  catch(e){ console.warn('No pude subir el evento al logfile:', e); }
+}
+
+async function cargarLog() {
+  try{const r=await signedGet('/data/logfile',{reader_id:estado.readerId});const d=await r.json();estado.allLogs=d?.data?.logfilerecords||[];}catch(e){estado.allLogs=[];}
+  renderLog(estado.allLogs);
+  document.getElementById('stat-events').textContent=estado.allLogs.length;
+}
+
+function renderLog(logs) {
+  const t=document.getElementById('log-tbody');
+  if(!logs.length){
+    t.innerHTML=`<tr><td colspan="6"><div class="empty-state"><p>Sin eventos en el log</p></div></td></tr>`;
+    document.getElementById('log-pag').style.display='none'; return;
+  }
+  const estilos={valid:'badge-success',banned:'badge-danger',expired:'badge-warning',void:'badge-neutral'};
+  const etiquetas={valid:'Válido',banned:'Baneado',expired:'Expirado',void:'Anulado'};
+  const ordenados = aplicarOrden('log', logs, l => ({
+    timestampunix32: l.timestampunix32||0, uid: l.uid||'',
+    eventtype: l.eventtype||'', result: l.result||'', tickettype: l.tickettype||''
+  }));
+  const {slice, total, start} = paginar('log', ordenados);
+  t.innerHTML=slice.map(l=>`<tr>
+    <td style="font-size:12px;color:var(--text-secondary)">${fmtDate(l.timestampunix32)}</td>
+    <td><span class="uid-code">${l.uid||'—'}</span></td>
+    <td style="font-size:12px;color:${l.eventtype==='tap'?'var(--accent)':'var(--danger)'}">${l.eventtype||'—'}</td>
+    <td><span class="badge ${estilos[l.result]||'badge-neutral'}">${etiquetas[l.result]||l.result||'—'}</span></td>
+    <td style="font-size:12px;color:var(--text-secondary)">${l.tickettype||'—'}</td>
+    <td style="font-size:12px;color:var(--text-secondary);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.description||'—'}</td>
+  </tr>`).join('');
+  renderPaginacion('log', total, start);
+  actualizarIconosOrden('log-table');
+}
+
+function filtrarLog(){ _estadoTablas.log.page=0; renderLog(logActual()); }
+
+// Lectores y ajustes
+function cargarLectores() {
+  document.getElementById('rd-id').textContent=estado.readerId||'—';
+  document.getElementById('rd-url').textContent=estado.serverUrl||'—';
+  document.getElementById('rd-session').textContent=estado.sessionActive?'Sí':'No';
+  document.getElementById('rd-badge').className='badge '+(estado.sessionActive?'badge-success':'badge-danger');
+  document.getElementById('rd-badge').textContent=estado.sessionActive?'Conectado':'Desconectado';
+}
+
+function cargarSettings() {
+  document.getElementById('cfg-url').value=estado.serverUrl;
+  document.getElementById('cfg-rid').value=estado.readerId;
+  document.getElementById('cfg-km').value=estado.KM?bytesToHex(estado.KM).toUpperCase():'';
+  document.getElementById('cfg-session-status').textContent=estado.sessionActive?'Activa':'Inactiva';
+  document.getElementById('cfg-ks').textContent=estado.KS?bytesToHex(estado.KS).substring(0,16)+'…':'—';
+  const segs=estado.sessionTs?Math.floor((Date.now()-estado.sessionTs)/1000):null;
+  document.getElementById('cfg-expires').textContent=segs!==null?`${Math.max(0,300-segs)}s restantes`:'—';
+}
+
+function guardarConfig() {
+  const url=document.getElementById('cfg-url').value.trim().replace(/\/$/,'');
+  const rid=document.getElementById('cfg-rid').value.trim();
+  const km=document.getElementById('cfg-km').value.trim().toUpperCase();
+  if(!url||!rid||km.length!==32){toast('Datos inválidos','error');return;}
+  estado.serverUrl=url; estado.readerId=rid; estado.KM=hexToBytes(km);
+  localStorage.setItem('rfid_url',url); localStorage.setItem('rfid_rid',rid); localStorage.setItem('rfid_km',km);
+  toast('Configuración guardada','success');
+}
+
+// Modales y toasts
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('open');});
+
+function toast(msg, tipo='') {
+  const c=document.getElementById('toast-container'), t=document.createElement('div');
+  t.className='toast '+tipo;
+  const iconos={
+    success:'<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>',
+    error:  '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>',
+    default:'<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>'
+  };
+  t.innerHTML=`<svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;flex-shrink:0">${iconos[tipo]||iconos.default}</svg>${msg}`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(4px)';t.style.transition='all 0.2s';setTimeout(()=>t.remove(),200);},3500);
+}
+
+// Inicio — restaurar sesión previa si existe en localStorage
+(function init() {
+  const su=localStorage.getItem('rfid_url'), sk=localStorage.getItem('rfid_km'), sr=localStorage.getItem('rfid_rid');
+  if(su) document.getElementById('setup-url').value=su;
+  if(sk) document.getElementById('setup-km').value=sk;
+  if(sr) document.getElementById('setup-rid').value=sr;
+  if(su&&sk&&sr) {
+    estado.serverUrl=su; estado.KM=hexToBytes(sk); estado.readerId=sr;
+    document.getElementById('status-url').textContent=su;
+    doAuth().then(ok=>{
+      if(ok){actualizarDot(true,su);showPage('dashboard');cargarDashboard();}
+      else{actualizarDot(false);showPage('setup');}
+    });
+  }
+})();
+</script>
+</body>
+</html>
