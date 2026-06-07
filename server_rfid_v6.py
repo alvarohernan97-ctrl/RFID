@@ -1,4 +1,4 @@
-# server_rfid_v5.py  —  RFID Student Box · servidor Flask
+# server_rfid_v6.py  —  RFID Student Box · servidor Flask
 # Autenticación mutua AES-CMAC + clave de sesión KS derivada de KM
 # Ejecutar: python3 server_rfid_v5.py
 # Requiere: pip install flask cryptography flask-cors
