@@ -438,7 +438,7 @@ def ticket_reload():
 
 MENU = """
 ╔══════════════════════════════════════════════════════╗
-║    RFID Student Box · Lector v5  (AES-CMAC)         ║
+║    RFID Student Box · Lector v6  (AES-CMAC)         ║
 ╠══════════════════════════════════════════════════════╣
 ║  1.  Validar billete                                ║
 ║  2.  Recargar billete                               ║
