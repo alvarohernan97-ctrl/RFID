@@ -1,7 +1,7 @@
 # lector_rfid_v6.py  —  RFID Student Box · lector operacional
 # Autenticación mutua AES-CMAC + firma de mensajes con KS
 # Funciones: validar billete, recargar billete
-# Ejecutar: python3 lector_rfid_v5.py
+# Ejecutar: python3 lector_rfid_v6.py
 # Requiere: pip3 install requests cryptography
 
 import requests
@@ -460,7 +460,7 @@ def main():
     global SERVER_URL, READER_ID, KM
 
     print(f"\n{'='*54}", flush=True)
-    print(f"  RFID Student Box · Lector v5", flush=True)
+    print(f"  RFID Student Box · Lector v6", flush=True)
     print(f"{'='*54}", flush=True)
     print(f"  Pulsa Enter para aceptar el valor por defecto.\n", flush=True)
 
