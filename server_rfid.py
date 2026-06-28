@@ -3,7 +3,7 @@
 # Ejecutar: python3 server_rfid.py
 # Requiere: pip install flask cryptography flask-cors
 
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json, os, time, secrets, hmac
 from cryptography.hazmat.primitives.cmac import CMAC
@@ -183,7 +183,6 @@ def require_session(f):
         return f(*args, **kwargs)
 
     return wrapper
-
 
 # ── Autenticación mutua ───────────────────────────────────────────────────────
 
