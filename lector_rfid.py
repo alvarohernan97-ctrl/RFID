@@ -438,7 +438,7 @@ def ticket_reload():
 
 MENU = """
 ╔══════════════════════════════════════════════════════╗
-║    RFID Student Box · Lector v6  (AES-CMAC)         ║
+║    RFID Student Box · Lector  (AES-CMAC)         ║
 ╠══════════════════════════════════════════════════════╣
 ║  1.  Validar billete                                ║
 ║  2.  Recargar billete                               ║
@@ -460,7 +460,7 @@ def main():
     global SERVER_URL, READER_ID, KM
 
     print(f"\n{'='*54}", flush=True)
-    print(f"  RFID Student Box · Lector v6", flush=True)
+    print(f"  RFID Student Box · Lector", flush=True)
     print(f"{'='*54}", flush=True)
     print(f"  Pulsa Enter para aceptar el valor por defecto.\n", flush=True)
 

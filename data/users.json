@@ -1,5 +1,58 @@
 {
   "fileversion": "1.0",
-  "filedate": 1782254998,
-  "filerecords": []
+  "filedate": 1782759216,
+  "filerecords": [
+    {
+      "uid": "0123456U",
+      "lastreaderid": "LECTORMAC",
+      "cardtype": {
+        "manufacturer": "NXP",
+        "chiptype": "MIFARE DESFire EV3",
+        "memorysizebytes": 4096,
+        "serialnumber": "NXP-0123456U"
+      },
+      "ticketdata": {
+        "tickettype": "monthly pass",
+        "registrationdateunix32": 1782757890,
+        "expirationdateunix32": 1785349890,
+        "lastusedateunix32": 1782759156,
+        "maximumuses": 255,
+        "realuses": 0,
+        "status": "valid",
+        "inout": "in"
+      },
+      "userdata": {
+        "userid": "44286823",
+        "username": "Laura Giraldo",
+        "useremail": "laura@example.com",
+        "usertype": "user"
+      }
+    },
+    {
+      "uid": "0123456V",
+      "lastreaderid": "LECTORMAC",
+      "cardtype": {
+        "manufacturer": "NXP",
+        "chiptype": "MIFARE DESFire EV3",
+        "memorysizebytes": 4096,
+        "serialnumber": "NXP-0123456V"
+      },
+      "ticketdata": {
+        "tickettype": "single ride",
+        "registrationdateunix32": 1782759204,
+        "expirationdateunix32": 1782845604,
+        "lastusedateunix32": 1782759216,
+        "maximumuses": 1,
+        "realuses": 1,
+        "status": "valid",
+        "inout": "in"
+      },
+      "userdata": {
+        "userid": "85720676",
+        "username": "Alejandra Giraldo",
+        "useremail": "alejandra@example.com",
+        "usertype": "user"
+      }
+    }
+  ]
 }

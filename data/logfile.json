@@ -1,6 +1,67 @@
 {
   "logfileversion": "1.0",
-  "logfiledate": 1782254998,
-  "logfilereaderid": null,
-  "logfilerecords": []
+  "logfiledate": 1782759216,
+  "logfilereaderid": "LECTORMAC",
+  "logfilerecords": [
+    {
+      "timestampunix32": 1782757890,
+      "uid": "0123456U",
+      "cardtype": "WEBCLIENT",
+      "tickettype": "monthly pass",
+      "realuses": 0,
+      "eventtype": "tap",
+      "result": "valid",
+      "description": "Usuario registrado desde webclient: Laura Giraldo"
+    },
+    {
+      "timestampunix32": 1782757926,
+      "uid": "0123456V",
+      "cardtype": "WEBCLIENT",
+      "tickettype": "10 rides",
+      "realuses": 0,
+      "eventtype": "tap",
+      "result": "valid",
+      "description": "Usuario registrado desde webclient: Alejandra Giraldo"
+    },
+    {
+      "timestampunix32": 1782759102,
+      "uid": "123456U",
+      "cardtype": "MIFARE DESFire EV1",
+      "tickettype": "unknown",
+      "realuses": 0,
+      "eventtype": "tap",
+      "result": "error",
+      "description": "Validación billete: error  dirección=in"
+    },
+    {
+      "timestampunix32": 1782759156,
+      "uid": "0123456U",
+      "cardtype": "MIFARE DESFire EV1",
+      "tickettype": "monthly pass",
+      "realuses": 0,
+      "eventtype": "tap",
+      "result": "valid",
+      "description": "Validación billete: valid  dirección=in"
+    },
+    {
+      "timestampunix32": 1782759204,
+      "uid": "0123456V",
+      "cardtype": "MIFARE DESFire EV1",
+      "tickettype": "single ride",
+      "realuses": 0,
+      "eventtype": "reload",
+      "result": "reloaded",
+      "description": "Recarga de billete: single ride  caduca=30/06/2026 20:53"
+    },
+    {
+      "timestampunix32": 1782759216,
+      "uid": "0123456V",
+      "cardtype": "MIFARE DESFire EV1",
+      "tickettype": "single ride",
+      "realuses": 1,
+      "eventtype": "tap",
+      "result": "valid",
+      "description": "Validación billete: valid  dirección=in"
+    }
+  ]
 }
